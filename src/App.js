@@ -97,7 +97,7 @@ function App() {
 				}
 			});
 		});
-		setTimeout(startSimulation, 200);
+		setTimeout(startSimulation, 250);
 	}, []);
 
 	return (
