@@ -1,8 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import produce from 'immer';
 import './css/index.css';
-const colsNumber = 50;
-const rowsNumber = 50;
 
 const neighboursPosition = [
 	[-1, -1],
@@ -15,7 +13,7 @@ const neighboursPosition = [
 	[1, 1],
 ];
 
-const createEmptyBoard = () => {
+const createEmptyBoard = (rowsNumber, colsNumber) => {
 	const rows = [];
 	for (let i = 0; i < rowsNumber; i++) {
 		rows.push(Array(colsNumber).fill(0));
@@ -23,11 +21,13 @@ const createEmptyBoard = () => {
 	return rows;
 };
 
-const createRandomBoard = () => {
+const createRandomBoard = (rowsNumber, colsNumber, percentValue) => {
 	const rows = [];
 	for (let i = 0; i < rowsNumber; i++) {
 		rows.push(
-			Array.from(Array(colsNumber), () => (Math.random() > 0.5 ? 1 : 0)),
+			Array.from(Array(colsNumber), () =>
+				Math.random() > percentValue / 100 ? 0 : 1,
+			),
 		);
 	}
 	return rows;
@@ -35,8 +35,12 @@ const createRandomBoard = () => {
 
 function App() {
 	const [working, setWorking] = useState(false);
+	const [percentValue, setPercentValue] = useState(50);
+	const [rowsNumber, setRowsNumber] = useState(10);
+	const [colsNumber, setColsNumber] = useState(10);
+
 	const [board, setBoard] = useState(() => {
-		return createEmptyBoard();
+		return createEmptyBoard(rowsNumber, colsNumber);
 	});
 	const handleClick = (i, j) => {
 		const newBoard = produce(board, (boardCopy) => {
@@ -48,6 +52,11 @@ function App() {
 	const workingRef = useRef(working);
 	workingRef.current = working;
 
+	const handleChange = (e) => {
+		console.log(e.target.value);
+		setPercentValue(e.target.value);
+	};
+
 	const handleStart = () => {
 		setWorking(!working);
 		if (!working) {
@@ -57,17 +66,17 @@ function App() {
 	};
 	const handleClear = () => {
 		setBoard(() => {
-			return createEmptyBoard();
+			return createEmptyBoard(rowsNumber,colsNumber);
 		});
 	};
 	const handleRandom = () => {
 		setBoard(() => {
-			return createRandomBoard();
+			return createRandomBoard(rowsNumber,colsNumber,percentValue);
 		});
 	};
+
 	const startSimulation = useCallback(() => {
 		if (!workingRef.current) {
-			console.log('koniec');
 			return;
 		}
 		setBoard((b) => {
@@ -97,14 +106,24 @@ function App() {
 				}
 			});
 		});
-		setTimeout(startSimulation, 250);
-	}, []);
+		setTimeout(startSimulation, 200);
+	}, [colsNumber, rowsNumber]);
 
 	return (
 		<div>
 			<button onClick={handleStart}>{working ? 'stop' : 'start'}</button>
 			<button onClick={handleClear}>clear</button>
+			<span>0%</span>
+			<input
+				type="range"
+				onChange={handleChange}
+				value={percentValue}
+				min="0"
+				max="100"
+			/>
+			<span>100%</span>
 			<button onClick={handleRandom}>random</button>
+			<div>{percentValue}</div>
 			<div
 				style={{
 					display: 'grid',
