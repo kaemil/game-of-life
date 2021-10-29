@@ -73,6 +73,10 @@ span {
           align-items: center;
   color: #e65e8b;
   height: 30px;
+  width: 10%;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 input {

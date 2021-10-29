@@ -3,27 +3,13 @@ import produce from 'immer';
 import './css/index.css';
 import createEmptyBoard from './functions/createEmptyBoard';
 import createRandomBoard from './functions/createRandomBoard';
+import checkingWidth from './functions/checkingWidth';
 import Board from './components/Board';
+import About from './components/About';
+import ControlButtons from './components/ControlButtons';
 import RangeButton from './components/RangeButton';
+import { neighboursPosition } from './functions/neighboursPosition';
 
-const neighboursPosition = [
-	[-1, -1],
-	[0, -1],
-	[1, -1],
-	[-1, 0],
-	[1, 0],
-	[-1, 1],
-	[0, 1],
-	[1, 1],
-];
-
-const checkingWidth = () => {
-	if (window.innerWidth < 660) {
-		return Math.floor((window.innerWidth - 20) / 25);
-	} else {
-		return 25;
-	}
-};
 function App() {
 	const [working, setWorking] = useState(false);
 	const [percentValue, setPercentValue] = useState(50);
@@ -85,6 +71,8 @@ function App() {
 			return createRandomBoard(rowsNumber, colsNumber, percentValue);
 		});
 	};
+
+	//Function starts simulation and creats mutating board
 	const startSimulation = useCallback(() => {
 		if (!workingRef.current) {
 			return;
@@ -118,27 +106,23 @@ function App() {
 		});
 		setTimeout(startSimulation, 200);
 	}, [colsNumber, rowsNumber]);
+
 	return (
 		<div className="game__container" style={{ width: colsNumber * 25 }}>
 			<h1>Game of life</h1>
 			<div className="game__buttons">
-				<a
-					href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life"
-					target="_blank"
-					rel="noreferrer"
-				>
-					<button>About</button>
-				</a>
+				<About />
 
 				<RangeButton
 					handleRandom={handleRandom}
 					percentValue={percentValue}
 					handleChange={handleChange}
 				/>
-				<div className="game__buttons--control">
-					<button onClick={handleClear}>Clear</button>
-					<button onClick={handleStart}>{working ? 'Stop' : 'Start'}</button>
-				</div>
+				<ControlButtons
+					handleClear={handleClear}
+					handleStart={handleStart}
+					working={working}
+				/>
 			</div>
 			<Board
 				board={board}

@@ -1,7 +1,7 @@
 # game-of-life
 
 **Description:**
-Simple interactive ???
+Simple interactive game of live. User can randomly generate a population amd start simulation or create own.
 
 **Why:**
 This project was created to practice React, java script functions, CSS formatting and HTML tags.

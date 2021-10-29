@@ -2,7 +2,7 @@ const RangeButton = ({ percentValue, handleRandom, handleChange }) => {
 	return (
 		<>
 			<div className="game__buttonsRange--bar">
-				<span>0%</span>
+				<span>{percentValue}%</span>
 				<input
 					type="range"
 					onChange={handleChange}
