@@ -1,11 +1,11 @@
-const Board = ({ board, handleClick, colsNumber }) => {
+const Board = ({ board, handleClick, colsNumber,countCurrent }) => {
 	const width = colsNumber * 25;
 	return (
 		<div
       className="game__board"
 			style={{
 				display: 'grid',
-				gridTemplateColumns: `repeat(${colsNumber},25px)`,
+				gridTemplateColumns: `repeat(${countCurrent},25px)`,
 				backgroundColor: '#424242',
 				width: width,
 			}}

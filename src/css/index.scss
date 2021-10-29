@@ -104,21 +104,4 @@ button:hover {
 		}
 	}
 }
-@media (min-width: 992px) {
-	.game {
-		&__buttons--control {
-			display: flex;
-			padding: 10px 30%;
-			justify-content: space-evenly;
-		}
-	}
-}
-@media (min-width: 1200px) {
-	.game {
-		&__buttons--control {
-			display: flex;
-			padding: 10px 35%;
-			justify-content: space-evenly;
-		}
-	}
-}
+

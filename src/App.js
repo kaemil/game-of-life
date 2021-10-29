@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import produce from 'immer';
 import './css/index.css';
 import createEmptyBoard from './functions/createEmptyBoard';
@@ -17,39 +17,45 @@ const neighboursPosition = [
 	[1, 1],
 ];
 
+const checkingWidth = () => {
+	if (window.innerWidth < 660) {
+		return Math.floor((window.innerWidth - 20) / 25);
+	} else {
+		return 25;
+	}
+};
 function App() {
 	const [working, setWorking] = useState(false);
 	const [percentValue, setPercentValue] = useState(50);
 	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-	const count = useRef(null);
-	count.current = Math.floor((windowWidth - 20) / 25);
-
-	const [rowsNumber, setRowsNumber] = useState(count.current);
-	const [colsNumber, setColsNumber] = useState(count.current);
+	const [rowsNumber, setRowsNumber] = useState(checkingWidth);
+	const [colsNumber, setColsNumber] = useState(checkingWidth);
+	const count = useRef(rowsNumber);
 	const [board, setBoard] = useState(() => {
 		return createEmptyBoard(rowsNumber, colsNumber);
 	});
 
-	// const resizeListener = useCallback(() => {
-	// 	setWindowWidth(window.innerWidth);
-	// 	setRowsNumber(count.current);
-	// 	setColsNumber(count.current);
-	// 	if (window.innerWidth < 840) {
-	// 		setBoard(() => {
-	// 			return createEmptyBoard(count.current, count.current);
-	// 		});
-	// 	} else {
-	// 		count.current = 30;
-	// 	}
-	// }, []);
+	const workingRef = useRef(working);
+	workingRef.current = working;
+	const resizeListener = useCallback(() => {
+		if (window.innerWidth < 660) {
+			count.current = Math.floor((window.innerWidth - 20) / 25);
+			setWindowWidth(window.innerWidth);
+			setRowsNumber(checkingWidth);
+			setColsNumber(checkingWidth);
+			setBoard(() => {
+				return createEmptyBoard(count.current, count.current);
+			});
+		}
+	}, []);
 
-	// useEffect(() => {
-	// 	window.addEventListener('resize', resizeListener);
-	// 	return () => {
-	// 		window.removeEventListener('resize', resizeListener);
-	// 	};
-	// }, [windowWidth, resizeListener]);
+	useEffect(() => {
+		window.addEventListener('resize', resizeListener);
+		return () => {
+			window.removeEventListener('resize', resizeListener);
+		};
+	}, [windowWidth, resizeListener]);
 
 	const handleClick = (i, j) => {
 		const newBoard = produce(board, (boardCopy) => {
@@ -57,9 +63,6 @@ function App() {
 		});
 		setBoard(newBoard);
 	};
-
-	const workingRef = useRef(working);
-	workingRef.current = working;
 
 	const handleChange = (e) => {
 		setPercentValue(e.target.value);
@@ -82,7 +85,6 @@ function App() {
 			return createRandomBoard(rowsNumber, colsNumber, percentValue);
 		});
 	};
-
 	const startSimulation = useCallback(() => {
 		if (!workingRef.current) {
 			return;
@@ -116,7 +118,6 @@ function App() {
 		});
 		setTimeout(startSimulation, 200);
 	}, [colsNumber, rowsNumber]);
-
 	return (
 		<div className="game__container" style={{ width: colsNumber * 25 }}>
 			<h1>Game of life</h1>
@@ -139,7 +140,12 @@ function App() {
 					<button onClick={handleStart}>{working ? 'Stop' : 'Start'}</button>
 				</div>
 			</div>
-			<Board board={board} handleClick={handleClick} colsNumber={colsNumber} />
+			<Board
+				board={board}
+				handleClick={handleClick}
+				countCurrent={count.current}
+				colsNumber={colsNumber}
+			/>
 		</div>
 	);
 }
