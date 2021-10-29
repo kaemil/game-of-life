@@ -1,6 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import produce from 'immer';
 import './css/index.css';
+import createEmptyBoard from './functions/createEmptyBoard';
+import createRandomBoard from './functions/createRandomBoard';
+import Board from './components/Board';
+import RangeButton from './components/RangeButton';
 
 const neighboursPosition = [
 	[-1, -1],
@@ -13,35 +17,40 @@ const neighboursPosition = [
 	[1, 1],
 ];
 
-const createEmptyBoard = (rowsNumber, colsNumber) => {
-	const rows = [];
-	for (let i = 0; i < rowsNumber; i++) {
-		rows.push(Array(colsNumber).fill(0));
-	}
-	return rows;
-};
-
-const createRandomBoard = (rowsNumber, colsNumber, percentValue) => {
-	const rows = [];
-	for (let i = 0; i < rowsNumber; i++) {
-		rows.push(
-			Array.from(Array(colsNumber), () =>
-				Math.random() > percentValue / 100 ? 0 : 1,
-			),
-		);
-	}
-	return rows;
-};
-
 function App() {
 	const [working, setWorking] = useState(false);
 	const [percentValue, setPercentValue] = useState(50);
-	const [rowsNumber, setRowsNumber] = useState(10);
-	const [colsNumber, setColsNumber] = useState(10);
+	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
+	const count = useRef(null);
+	count.current = Math.floor((windowWidth - 20) / 25);
+
+	const [rowsNumber, setRowsNumber] = useState(count.current);
+	const [colsNumber, setColsNumber] = useState(count.current);
 	const [board, setBoard] = useState(() => {
 		return createEmptyBoard(rowsNumber, colsNumber);
 	});
+
+	// const resizeListener = useCallback(() => {
+	// 	setWindowWidth(window.innerWidth);
+	// 	setRowsNumber(count.current);
+	// 	setColsNumber(count.current);
+	// 	if (window.innerWidth < 840) {
+	// 		setBoard(() => {
+	// 			return createEmptyBoard(count.current, count.current);
+	// 		});
+	// 	} else {
+	// 		count.current = 30;
+	// 	}
+	// }, []);
+
+	// useEffect(() => {
+	// 	window.addEventListener('resize', resizeListener);
+	// 	return () => {
+	// 		window.removeEventListener('resize', resizeListener);
+	// 	};
+	// }, [windowWidth, resizeListener]);
+
 	const handleClick = (i, j) => {
 		const newBoard = produce(board, (boardCopy) => {
 			boardCopy[i][j] = board[i][j] ? 0 : 1;
@@ -53,7 +62,6 @@ function App() {
 	workingRef.current = working;
 
 	const handleChange = (e) => {
-		console.log(e.target.value);
 		setPercentValue(e.target.value);
 	};
 
@@ -66,12 +74,12 @@ function App() {
 	};
 	const handleClear = () => {
 		setBoard(() => {
-			return createEmptyBoard(rowsNumber,colsNumber);
+			return createEmptyBoard(rowsNumber, colsNumber);
 		});
 	};
 	const handleRandom = () => {
 		setBoard(() => {
-			return createRandomBoard(rowsNumber,colsNumber,percentValue);
+			return createRandomBoard(rowsNumber, colsNumber, percentValue);
 		});
 	};
 
@@ -110,45 +118,28 @@ function App() {
 	}, [colsNumber, rowsNumber]);
 
 	return (
-		<div>
-			<button onClick={handleStart}>{working ? 'stop' : 'start'}</button>
-			<button onClick={handleClear}>clear</button>
-			<span>0%</span>
-			<input
-				type="range"
-				onChange={handleChange}
-				value={percentValue}
-				min="0"
-				max="100"
-			/>
-			<span>100%</span>
-			<button onClick={handleRandom}>random</button>
-			<div>{percentValue}</div>
-			<div
-				style={{
-					display: 'grid',
-					gridTemplateColumns: `repeat(${colsNumber},20px)`,
-					backgroundColor: '#2C2C2C',
-				}}
-			>
-				{board.map((rows, i) =>
-					rows.map((col, j) => {
-						return (
-							<div
-								onClick={() => handleClick(i, j)}
-								key={`${i}-${j}`}
-								style={{
-									width: 20,
-									height: 20,
-									boxSizing: 'border-box',
-									border: '1px solid #212121',
-									backgroundColor: board[i][j] ? '#e65e8b' : null,
-								}}
-							></div>
-						);
-					}),
-				)}
+		<div className="game__container" style={{ width: colsNumber * 25 }}>
+			<h1>Game of life</h1>
+			<div className="game__buttons">
+				<a
+					href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life"
+					target="_blank"
+					rel="noreferrer"
+				>
+					<button>About</button>
+				</a>
+
+				<RangeButton
+					handleRandom={handleRandom}
+					percentValue={percentValue}
+					handleChange={handleChange}
+				/>
+				<div className="game__buttons--control">
+					<button onClick={handleClear}>Clear</button>
+					<button onClick={handleStart}>{working ? 'Stop' : 'Start'}</button>
+				</div>
 			</div>
+			<Board board={board} handleClick={handleClick} colsNumber={colsNumber} />
 		</div>
 	);
 }
