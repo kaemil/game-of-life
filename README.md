@@ -17,4 +17,4 @@ This project was created to practice React, java script functions, CSS formattin
 
 **Link**
 
-link
+https://kaemil.github.io/game-of-life/
